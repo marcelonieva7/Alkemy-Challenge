@@ -1,0 +1,11 @@
+{
+  "name": "alkemy-challenge",
+  "private": true,
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "start": "lerna run start --parallel --stream"
+  },
+  "devDependencies": {
+    "lerna": "^4.0.0"
+  }
+}
