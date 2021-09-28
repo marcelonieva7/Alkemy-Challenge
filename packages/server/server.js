@@ -3,6 +3,9 @@ const cors = require('cors')
 const dotenv = require('dotenv')
 
 dotenv.config()
+
+const pool = require('./app/database')
+
 const app = express()
 
 app.use(cors())
