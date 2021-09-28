@@ -6,11 +6,15 @@ dotenv.config()
 
 const pool = require('./app/database')
 
+const apiRouter = require('./app/routes/api.routes')
+
 const app = express()
 
 app.use(cors())
 app.use(express.json())
 
+// routes
+app.use('/api', apiRouter)
 app.get('/', (req, res) => res.json({ message: 'Welcome!' }))
 
 const PORT = process.env.PORT || 8000
