@@ -4,8 +4,6 @@ const dotenv = require('dotenv')
 
 dotenv.config()
 
-const pool = require('./app/database')
-
 const apiRouter = require('./app/routes/api.routes')
 
 const app = express()
