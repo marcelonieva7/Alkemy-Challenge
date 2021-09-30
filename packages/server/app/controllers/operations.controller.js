@@ -1,7 +1,7 @@
 // @ts-nocheck
 /* eslint-disable no-console */
 const pool = require('../database')
-
+const operationModel = require('../models/operations.model')
 const TABLE = 'operations'
 
 const getAllOperations = async (req, res) => {
@@ -20,8 +20,9 @@ const getAllOperations = async (req, res) => {
 }
 const saveOperation = async ({ body }, res) => {
   try {
-    const { insertId } = await pool.query(`INSERT INTO \`${TABLE}\` set ?`, [body])
-    res.status(200).json({ ...operation, id: insertId })
+    const validBody = await operationModel.validateAsync(body, { convert: false })
+    const { insertId } = await pool.query(`INSERT INTO \`${TABLE}\` set ?`, [validBody])
+    res.status(200).json({ ...validBody, id: insertId })
   } catch (err) {
     console.log(err)
     res.status(500).send(err)
@@ -55,9 +56,11 @@ const deleteOperation = async ({ params }, res) => {
   }
 }
 const updateOperation = async ({ body, params }, res) => {
-  const { amount, description, created_at } = body
-  const { operationId } = params
   try {
+    const validBody = await operationModel.validateAsync(body, { convert: false })
+    const { amount, description, created_at } = validBody
+    const { operationId } = params
+
     const query = await pool.query(
       `UPDATE \`${TABLE}\` SET amount = ?, description = ?, created_at = ? WHERE \`id\` = ?`,
       [amount, description, created_at, operationId],

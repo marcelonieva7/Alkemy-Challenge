@@ -12,10 +12,10 @@ const pool = mysql.createPool({
 pool.getConnection((err, connection) => {
   if (err) {
     console.error(err.code)
+    return
   }
   if (connection) connection.release()
   console.log('DB is Connected')
-  return
 })
 
 pool.query = promisify(pool.query)
