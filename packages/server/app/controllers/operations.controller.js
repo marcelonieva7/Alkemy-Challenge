@@ -1,31 +1,34 @@
+// @ts-nocheck
 /* eslint-disable no-console */
 const pool = require('../database')
 
 const TABLE = 'operations'
 
 const getAllOperations = async (req, res) => {
-  const { limit } = req.query
+  const { limit = 0, offset = 0 } = req.query
   try {
-    const query = await pool.query(`SELECT * FROM \`${TABLE}\` ORDER BY \`created_at\` DESC`)
-    if (limit && limit <= query.length) query.length = limit
+    const query = await pool.query(
+      `SELECT \`id\`, \`typeOf\`, \`amount\`, \`description\`, DATE_FORMAT(\`created_at\`, '%d-%m-%y') AS 'createdAt' 
+      FROM \`${TABLE}\` ORDER BY \`created_at\` DESC 
+      ${limit ? 'LIMIT ' + limit + ' OFFSET ' + offset : ''}`,
+    )
     res.status(200).json(query)
   } catch (err) {
     console.log(err)
     res.status(500).send(err)
   }
 }
-const saveOperation = async (req, res) => {
+const saveOperation = async ({ body }, res) => {
   try {
-    const operation = req.body
-    const { insertId } = await pool.query(`INSERT INTO \`${TABLE}\` set ?`, [operation])
+    const { insertId } = await pool.query(`INSERT INTO \`${TABLE}\` set ?`, [body])
     res.status(200).json({ ...operation, id: insertId })
   } catch (err) {
     console.log(err)
     res.status(500).send(err)
   }
 }
-const getOperation = async (req, res) => {
-  const { operationId } = req.params
+const getOperation = async ({ params }, res) => {
+  const { operationId } = params
   try {
     const query = await pool.query(`SELECT * FROM \`${TABLE}\` WHERE \`id\` = ?`, operationId)
     if (query.length === 0) res.status(400).send('Not found an operation whith id ' + operationId)
@@ -34,8 +37,8 @@ const getOperation = async (req, res) => {
     res.status(500).send(err)
   }
 }
-const deleteOperation = async (req, res) => {
-  const { operationId } = req.params
+const deleteOperation = async ({ params }, res) => {
+  const { operationId } = params
   try {
     const { affectedRows } = await pool.query(
       `DELETE FROM \`${TABLE}\` WHERE \`id\` = ?`,
@@ -51,9 +54,9 @@ const deleteOperation = async (req, res) => {
     res.status(500).send(err)
   }
 }
-const updateOperation = async (req, res) => {
-  const { amount, description, created_at } = req.body
-  const { operationId } = req.params
+const updateOperation = async ({ body, params }, res) => {
+  const { amount, description, created_at } = body
+  const { operationId } = params
   try {
     const query = await pool.query(
       `UPDATE \`${TABLE}\` SET amount = ?, description = ?, created_at = ? WHERE \`id\` = ?`,
@@ -63,7 +66,7 @@ const updateOperation = async (req, res) => {
       res.status(400).send('Not found an operation whith id ' + operationId)
       return
     }
-    res.status(200).json({ ...req.body, id: operationId })
+    res.status(200).json({ ...body, id: operationId })
   } catch (err) {
     console.error(err)
     res.status(500).send(err)
