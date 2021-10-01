@@ -1,7 +1,26 @@
 import React from 'react';
-import { Flex, SimpleGrid, useColorModeValue, useBreakpointValue, chakra } from '@chakra-ui/react';
+import {
+  Flex,
+  SimpleGrid,
+  useColorModeValue,
+  useBreakpointValue,
+  chakra,
+  ButtonGroup,
+  IconButton,
+} from '@chakra-ui/react';
+import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 
-const List = ({ idx, description, typeOf, amount, createdAt }) => {
+const List = ({
+  id,
+  idx,
+  description,
+  typeOf,
+  amount,
+  createdAt,
+  admin,
+  onOpenModal,
+  onOpenAlert,
+}) => {
   const bg = useColorModeValue('gray.100', 'gray.700');
   const color = useColorModeValue('gray.500', 'gray.600');
   const bp = useBreakpointValue({ base: 'gray.400', md: bg });
@@ -21,7 +40,7 @@ const List = ({ idx, description, typeOf, amount, createdAt }) => {
           textTransform="uppercase"
           w={{ base: 120, md: 'full' }}
         >
-          <span>Tipo</span>
+          <span>{admin ? 'Acciones' : 'Tipo'}</span>
           <chakra.span columns={1} textAlign={{ md: 'center' }}>
             Concepto
           </chakra.span>
@@ -42,7 +61,33 @@ const List = ({ idx, description, typeOf, amount, createdAt }) => {
         spacingY={3}
         w="full"
       >
-        <span>{typeOf === 'income' ? 'Ingreso' : 'Gasto'}</span>
+        {admin ? (
+          <Flex justify={{ md: 'start' }}>
+            <ButtonGroup
+              justifyContent="flex-start"
+              size="sm"
+              spacing={3}
+              variant="solid"
+              w={{ base: 'auto', md: 'full' }}
+            >
+              <IconButton
+                aria-label="Edit Center"
+                colorScheme="green"
+                icon={<EditIcon />}
+                onClick={() => onOpenModal(id)}
+              />
+              <IconButton
+                aria-label="Delete Center"
+                colorScheme="red"
+                icon={<DeleteIcon />}
+                variant="outline"
+                onClick={() => onOpenAlert(id)}
+              />
+            </ButtonGroup>
+          </Flex>
+        ) : (
+          <span>{typeOf === 'income' ? 'Ingreso' : 'Gasto'}</span>
+        )}
         <chakra.span
           overflow="hidden"
           textAlign={{ md: 'center' }}
