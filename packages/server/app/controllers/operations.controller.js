@@ -12,7 +12,14 @@ const getAllOperations = async (req, res) => {
       FROM \`${TABLE}\` ORDER BY \`created_at\` DESC 
       ${limit ? 'LIMIT ' + limit + ' OFFSET ' + offset : ''}`,
     )
-    res.status(200).json(query)
+    const [queryExpense] = await pool.query(
+      `SELECT SUM(\`amount\`) AS 'totalExpense' FROM \`${TABLE}\` WHERE \`typeOf\` = 'expense'`,
+    )
+    const [queryIncome] = await pool.query(
+      `SELECT SUM(\`amount\`) AS 'totalIncome' FROM \`${TABLE}\` WHERE \`typeOf\` = 'income'`,
+    )
+    const total = queryIncome.totalIncome - queryExpense.totalExpense
+    res.status(200).json({ data: query, total })
   } catch (err) {
     console.log(err)
     res.status(500).send(err)
