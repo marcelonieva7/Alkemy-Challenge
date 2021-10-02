@@ -8,18 +8,20 @@ const getAllOperations = async (req, res) => {
   const { limit = 0, offset = 0 } = req.query
   try {
     const query = await pool.query(
-      `SELECT \`id\`, \`typeOf\`, \`amount\`, \`description\`, DATE_FORMAT(\`created_at\`, '%d-%m-%y') AS 'createdAt' 
-      FROM \`${TABLE}\` ORDER BY \`created_at\` DESC 
+      `SELECT * FROM \`${TABLE}\` ORDER BY \`created_at\` DESC 
       ${limit ? 'LIMIT ' + limit + ' OFFSET ' + offset : ''}`,
     )
-    const [queryExpense] = await pool.query(
-      `SELECT SUM(\`amount\`) AS 'totalExpense' FROM \`${TABLE}\` WHERE \`typeOf\` = 'expense'`,
+    const queryTotal = await pool.query(
+      `SELECT \`typeOf\`, SUM(\`amount\`) AS 'total' FROM \`${TABLE}\` GROUP BY \`typeOf\``,
     )
-    const [queryIncome] = await pool.query(
-      `SELECT SUM(\`amount\`) AS 'totalIncome' FROM \`${TABLE}\` WHERE \`typeOf\` = 'income'`,
-    )
-    const total = queryIncome.totalIncome - queryExpense.totalExpense
-    res.status(200).json({ data: query, total })
+
+    res.status(200).json({
+      data: query,
+      totalByType: {
+        income: queryTotal.find(({ typeOf }) => typeOf === 'income').total,
+        expense: queryTotal.find(({ typeOf }) => typeOf === 'expense').total,
+      },
+    })
   } catch (err) {
     console.log(err)
     res.status(500).send(err)
@@ -66,7 +68,7 @@ const updateOperation = async ({ body, params }, res) => {
   try {
     const validBody = await operationModel.validateAsync(body, { convert: false })
     const { amount, description, created_at } = validBody
-    const { operationId } = params
+    const operationId = Number(params.operationId)
 
     const query = await pool.query(
       `UPDATE \`${TABLE}\` SET amount = ?, description = ?, created_at = ? WHERE \`id\` = ?`,
@@ -76,7 +78,7 @@ const updateOperation = async ({ body, params }, res) => {
       res.status(400).send('Not found an operation whith id ' + operationId)
       return
     }
-    res.status(200).json({ ...body, id: operationId })
+    res.status(200).json({ ...validBody, id: operationId })
   } catch (err) {
     console.error(err)
     res.status(500).send(err)
