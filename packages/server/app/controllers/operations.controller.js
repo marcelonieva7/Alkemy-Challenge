@@ -1,4 +1,3 @@
-// @ts-nocheck
 /* eslint-disable no-console */
 const pool = require('../database')
 const operationModel = require('../models/operations.model')
@@ -18,8 +17,8 @@ const getAllOperations = async (req, res) => {
     res.status(200).json({
       data: query,
       totalByType: {
-        income: queryTotal.find(({ typeOf }) => typeOf === 'income').total,
-        expense: queryTotal.find(({ typeOf }) => typeOf === 'expense').total,
+        income: queryTotal.find(({ typeOf }) => typeOf === 'income')?.total,
+        expense: queryTotal.find(({ typeOf }) => typeOf === 'expense')?.total,
       },
     })
   } catch (err) {
