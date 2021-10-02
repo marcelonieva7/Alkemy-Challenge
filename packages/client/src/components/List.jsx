@@ -10,13 +10,16 @@ import {
 } from '@chakra-ui/react';
 import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 
+import parseISOdate from '../utils/isoDateToDMY';
+import localCurrency from '../utils/localCurrency';
+
 const List = ({
   id,
   idx,
   description,
   typeOf,
   amount,
-  createdAt,
+  created_at,
   admin,
   onOpenModal,
   onOpenAlert,
@@ -74,7 +77,7 @@ const List = ({
                 aria-label="Edit Center"
                 colorScheme="green"
                 icon={<EditIcon />}
-                onClick={() => onOpenModal(id)}
+                onClick={() => onOpenModal(id, true)}
               />
               <IconButton
                 aria-label="Delete Center"
@@ -102,7 +105,7 @@ const List = ({
           textOverflow="ellipsis"
           whiteSpace="nowrap"
         >
-          {createdAt}
+          {parseISOdate(created_at)}
         </chakra.span>
         <chakra.span
           overflow="hidden"
@@ -110,7 +113,7 @@ const List = ({
           textOverflow="ellipsis"
           whiteSpace="nowrap"
         >
-          {amount}
+          {localCurrency.format(amount)}
         </chakra.span>
       </SimpleGrid>
     </Flex>

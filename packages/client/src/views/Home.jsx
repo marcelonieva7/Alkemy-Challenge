@@ -1,24 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import { Center, Heading } from '@chakra-ui/layout';
-import { Spinner } from '@chakra-ui/spinner';
+import { Center, Heading, useDisclosure, Spinner } from '@chakra-ui/react';
 
 import List from '../components/List';
+import AdminAlert from '../components/AdminAlert';
 import { getAllOperations } from '../api';
+import localCurrency from '../utils/localCurrency';
 
 const Home = () => {
-  const [datos, setDatos] = useState([]);
+  const [operations, setOperations] = useState([]);
   const [balance, setBalance] = useState(null);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  useEffect(() => {
+    if (error) {
+      onOpen();
+    }
+  }, [error, onOpen]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data, total } = await getAllOperations(10);
+        const {
+          data,
+          totalByType: { income, expense },
+        } = await getAllOperations(10);
 
-        setDatos(data);
-        setBalance(total);
+        setOperations(data);
+        setBalance(localCurrency.format(income - expense));
       } catch (err) {
-        alert(err.message);
+        setError(err);
       } finally {
         setLoading(false);
       }
@@ -32,20 +45,21 @@ const Home = () => {
       <Center my="6">
         <Heading>Ultimas diez operaciones</Heading>
       </Center>
-      {datos.map((dat, idx) => (
+      {operations.map((dat, idx) => (
         <List key={idx} idx={idx} {...dat} />
       ))}
       {loading ? (
         <Center>
           <Spinner color="blue.500" emptyColor="gray.200" size="xl" speed="0.65s" thickness="4px" />
         </Center>
-      ) : !datos.length ? (
-        <h2>Vacio</h2>
+      ) : !operations.length ? (
+        <h2>Sin Operaciones</h2>
       ) : (
         <Heading my="3" size="md" textAlign="right">
-          Balance total ${balance}
+          Balance total {balance}
         </Heading>
       )}
+      <AdminAlert error={error} isOpen={isOpen} onClose={onClose} />
     </>
   );
 };
