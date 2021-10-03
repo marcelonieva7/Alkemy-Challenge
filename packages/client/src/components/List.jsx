@@ -17,7 +17,7 @@ const List = ({
   id,
   idx,
   description,
-  typeOf,
+  type,
   amount,
   created_at,
   admin,
@@ -77,19 +77,19 @@ const List = ({
                 aria-label="Edit Center"
                 colorScheme="green"
                 icon={<EditIcon />}
-                onClick={() => onOpenModal(id, true)}
+                onClick={() => onOpenModal(id, true, type)}
               />
               <IconButton
                 aria-label="Delete Center"
                 colorScheme="red"
                 icon={<DeleteIcon />}
                 variant="outline"
-                onClick={() => onOpenAlert(id)}
+                onClick={() => onOpenAlert(id, type)}
               />
             </ButtonGroup>
           </Flex>
         ) : (
-          <span>{typeOf === 'income' ? 'Ingreso' : 'Gasto'}</span>
+          <span>{type}</span>
         )}
         <chakra.span
           overflow="hidden"

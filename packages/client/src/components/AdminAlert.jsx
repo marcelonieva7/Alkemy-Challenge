@@ -9,16 +9,28 @@ import {
   Button,
 } from '@chakra-ui/react';
 
-import { deleteOperation } from '../api';
+import { deleteIncome, deleteExpense } from '../api';
 
-const AdminAlert = ({ isOpen, onClose, dispatch, id, error }) => {
+const AdminAlert = ({ isOpen, onClose, dispatch, id, error, type }) => {
   const cancelRef = useRef();
 
-  const deleteData = async (id) => {
-    try {
-      const deleted = await deleteOperation(id);
+  const deleteData = async (id, type) => {
+    if (type === 'ingreso') {
+      try {
+        const deleted = await deleteIncome(id);
 
-      dispatch({ type: 'DELETE_DATA_OK', payload: deleted });
+        dispatch({ type: 'DELETE_INCOME_OK', payload: deleted });
+        onClose();
+      } catch (err) {
+        dispatch({ type: 'GET_DATA_ERROR', payload: err });
+      }
+
+      return;
+    }
+    try {
+      const deleted = await deleteExpense(id);
+
+      dispatch({ type: 'DELETE_EXPENSE_OK', payload: deleted });
       onClose();
     } catch (err) {
       dispatch({ type: 'GET_DATA_ERROR', payload: err });
@@ -51,7 +63,7 @@ const AdminAlert = ({ isOpen, onClose, dispatch, id, error }) => {
                   colorScheme="red"
                   ml={3}
                   onClick={() => {
-                    deleteData(id);
+                    deleteData(id, type);
                   }}
                 >
                   Borrar

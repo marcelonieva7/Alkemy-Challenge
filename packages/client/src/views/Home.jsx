@@ -23,13 +23,10 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const {
-          data,
-          totalByType: { income, expense },
-        } = await getAllOperations(10);
+        const { data, total } = await getAllOperations(10);
 
         setOperations(data);
-        setBalance(localCurrency.format(income - expense));
+        setBalance(localCurrency.format(total.incomes - total.expenses));
       } catch (err) {
         setError(err);
       } finally {

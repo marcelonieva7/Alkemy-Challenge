@@ -1,4 +1,5 @@
-import React from 'react';
+/* eslint-disable no-unused-vars */
+import React, { useState } from 'react';
 import {
   Box,
   Stack,
@@ -22,12 +23,19 @@ import operationModel from '../models/operations.model';
 
 const AdminForm = ({ operation, onSubmit, setDate, date, edit }) => {
   const dateParse = date.toISOString().slice(0, 10);
-  const { amount, typeOf, description } = operation || {};
+  const { amount, type, description, category_id } = operation || {};
+  const [showCategories, setShowCategories] = useState(type === 'gasto');
+
+  const color = useColorModeValue('gray.700', 'gray.50');
   const {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
   } = useForm({ resolver: joiResolver(operationModel) });
+
+  const handleChange = ({ value }) => {
+    value === 'gasto' ? setShowCategories(true) : setShowCategories(false);
+  };
 
   return (
     <Box mt={2}>
@@ -46,39 +54,69 @@ const AdminForm = ({ operation, onSubmit, setDate, date, edit }) => {
             spacing={6}
           >
             <SimpleGrid columns={6} spacing={6}>
-              <FormControl as={GridItem} colSpan={6} isInvalid={errors.typeOf}>
+              <FormControl as={GridItem} colSpan={6} isInvalid={errors.type}>
                 <FormLabel
                   color={useColorModeValue('gray.700', 'gray.50')}
                   fontSize="sm"
                   fontWeight="md"
-                  htmlFor="typeOf"
+                  htmlFor="type"
                 >
                   Tipo
                 </FormLabel>
                 <InputGroup size="sm">
                   <Select
-                    defaultValue={typeOf}
+                    defaultValue={type}
                     focusBorderColor="brand.400"
-                    id="typeOf"
+                    id="type"
                     mt={1}
-                    name="typeOf"
+                    name="type"
                     rounded="md"
                     shadow="sm"
                     size="sm"
                     w="full"
-                    {...register('typeOf')}
+                    {...register('type', { onChange: ({ target }) => handleChange(target) })}
                   >
                     <option disabled>Tipo de operacion</option>
-                    <option disabled={typeOf !== 'expense' && edit} value="expense">
-                      Gasto
-                    </option>
-                    <option disabled={typeOf !== 'income' && edit} value="income">
+                    <option disabled={type !== 'ingreso' && edit} value="ingreso">
                       Ingreso
+                    </option>
+                    <option disabled={type !== 'gasto' && edit} value="gasto">
+                      Gasto
                     </option>
                   </Select>
                 </InputGroup>
-                <FormErrorMessage>{errors.typeOf && errors.typeOf.message}</FormErrorMessage>
+                <FormErrorMessage>{errors.type && errors.type.message}</FormErrorMessage>
               </FormControl>
+              {showCategories && (
+                <FormControl as={GridItem} colSpan={6} isInvalid={errors.category_id}>
+                  <FormLabel color={color} fontSize="sm" fontWeight="md" htmlFor="category_id">
+                    Categoria
+                  </FormLabel>
+                  <InputGroup size="sm">
+                    <Select
+                      defaultValue={category_id}
+                      focusBorderColor="brand.400"
+                      id="category_id"
+                      mt={1}
+                      name="category_id"
+                      rounded="md"
+                      shadow="sm"
+                      size="sm"
+                      {...register('category_id')}
+                    >
+                      <option disabled>Categoria</option>
+                      <option value="1">Libreria</option>
+                      <option value="2">Alimentos</option>
+                      <option value="3">Vestimenta</option>
+                      <option value="4">Transporte</option>
+                      <option value="5">Otro</option>
+                    </Select>
+                  </InputGroup>
+                  <FormErrorMessage>
+                    {errors.category_id && errors.category_id.message}
+                  </FormErrorMessage>
+                </FormControl>
+              )}
               <FormControl as={GridItem} colSpan={6} isInvalid={errors.amount}>
                 <FormLabel
                   color={useColorModeValue('gray.700', 'gray.50')}

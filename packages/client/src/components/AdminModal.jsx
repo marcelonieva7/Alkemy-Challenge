@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import {
   Modal,
@@ -9,11 +8,11 @@ import {
   ModalBody,
 } from '@chakra-ui/react';
 
-import { updateteOperation, saveOperation } from '../api';
+import { updateIncome, updateExpense, saveIncome, saveExpense } from '../api';
 
 import AdminForm from './AdminForm';
 
-const AdminModal = ({ isOpen, onClose, operation, edit, dispatch }) => {
+const AdminModal = ({ isOpen, onClose, operation, edit, dispatch, setCategory }) => {
   const { id, created_at } = operation;
 
   const [date, setDate] = useState(new Date());
@@ -24,22 +23,40 @@ const AdminModal = ({ isOpen, onClose, operation, edit, dispatch }) => {
     setDate(date);
   }, [created_at]);
 
-  const onSubmit = ({ description, amount, typeOf }) => {
+  const onSubmit = ({ description, amount, type, category_id }) => {
     const created_at = date.toISOString();
-    const data = {
+    let data = {
       description,
       amount,
       created_at,
-      typeOf,
     };
 
     if (edit) {
+      if (type === 'ingreso') {
+        const updateData = async (id, data) => {
+          try {
+            const updated = await updateIncome(Number(id), data);
+
+            dispatch({ type: 'UPDATE_INCOME_OK', payload: updated });
+            onClose();
+            setCategory(0);
+          } catch (err) {
+            dispatch({ type: 'GET_DATA_ERROR', payload: err });
+          }
+        };
+
+        updateData(id, data);
+
+        return;
+      }
+      data = { ...data, category_id };
       const updateData = async (id, data) => {
         try {
-          const updated = await updateteOperation(Number(id), data);
+          const updated = await updateExpense(Number(id), data);
 
-          dispatch({ type: 'UPDATE_DATA_OK', payload: updated });
+          dispatch({ type: 'UPDATE_EXPENSE_OK', payload: updated });
           onClose();
+          setCategory(0);
         } catch (err) {
           dispatch({ type: 'GET_DATA_ERROR', payload: err });
         }
@@ -51,11 +68,26 @@ const AdminModal = ({ isOpen, onClose, operation, edit, dispatch }) => {
     }
 
     const saveData = async (data) => {
-      try {
-        const saved = await saveOperation(data);
+      if (type === 'ingreso') {
+        try {
+          const saved = await saveIncome(data);
 
-        dispatch({ type: 'SAVE_DATA_OK', payload: saved });
+          dispatch({ type: 'SAVE_INCOME_OK', payload: saved });
+          onClose();
+          setCategory(0);
+        } catch (err) {
+          dispatch({ type: 'GET_DATA_ERROR', payload: err });
+        }
+
+        return;
+      }
+      data = { ...data, category_id };
+      try {
+        const saved = await saveExpense(data);
+
+        dispatch({ type: 'SAVE_EXPENSE_OK', payload: saved });
         onClose();
+        setCategory(0);
       } catch (err) {
         dispatch({ type: 'GET_DATA_ERROR', payload: err });
       }
