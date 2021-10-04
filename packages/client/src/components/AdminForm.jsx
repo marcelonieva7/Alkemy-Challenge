@@ -24,7 +24,7 @@ import operationModel from '../models/operations.model';
 const AdminForm = ({ operation, onSubmit, setDate, date, edit }) => {
   const dateParse = date.toISOString().slice(0, 10);
   const { amount, type, description, category_id } = operation || {};
-  const [showCategories, setShowCategories] = useState(type === 'gasto');
+  const [isExpenseCategories, setIsExpenseCategories] = useState(type === 'gasto');
 
   const color = useColorModeValue('gray.700', 'gray.50');
   const {
@@ -34,7 +34,7 @@ const AdminForm = ({ operation, onSubmit, setDate, date, edit }) => {
   } = useForm({ resolver: joiResolver(operationModel) });
 
   const handleChange = ({ value }) => {
-    value === 'gasto' ? setShowCategories(true) : setShowCategories(false);
+    value === 'gasto' ? setIsExpenseCategories(true) : setIsExpenseCategories(false);
   };
 
   return (
@@ -87,36 +87,46 @@ const AdminForm = ({ operation, onSubmit, setDate, date, edit }) => {
                 </InputGroup>
                 <FormErrorMessage>{errors.type && errors.type.message}</FormErrorMessage>
               </FormControl>
-              {showCategories && (
-                <FormControl as={GridItem} colSpan={6} isInvalid={errors.category_id}>
-                  <FormLabel color={color} fontSize="sm" fontWeight="md" htmlFor="category_id">
-                    Categoria
-                  </FormLabel>
-                  <InputGroup size="sm">
-                    <Select
-                      defaultValue={category_id}
-                      focusBorderColor="brand.400"
-                      id="category_id"
-                      mt={1}
-                      name="category_id"
-                      rounded="md"
-                      shadow="sm"
-                      size="sm"
-                      {...register('category_id')}
-                    >
-                      <option disabled>Categoria</option>
-                      <option value="1">Libreria</option>
-                      <option value="2">Alimentos</option>
-                      <option value="3">Vestimenta</option>
-                      <option value="4">Transporte</option>
-                      <option value="5">Otro</option>
-                    </Select>
-                  </InputGroup>
-                  <FormErrorMessage>
-                    {errors.category_id && errors.category_id.message}
-                  </FormErrorMessage>
-                </FormControl>
-              )}
+              <FormControl as={GridItem} colSpan={6} isInvalid={errors.category_id}>
+                <FormLabel color={color} fontSize="sm" fontWeight="md" htmlFor="category_id">
+                  Categoria
+                </FormLabel>
+                <InputGroup size="sm">
+                  <Select
+                    defaultValue={category_id}
+                    focusBorderColor="brand.400"
+                    id="category_id"
+                    mt={1}
+                    name="category_id"
+                    rounded="md"
+                    shadow="sm"
+                    size="sm"
+                    {...register('category_id')}
+                  >
+                    <option disabled>Categoria</option>
+                    {isExpenseCategories ? (
+                      <>
+                        <option value="1">Libreria</option>
+                        <option value="2">Alimentos</option>
+                        <option value="3">Vestimenta</option>
+                        <option value="4">Transporte</option>
+                        <option value="5">Otro</option>
+                      </>
+                    ) : (
+                      <>
+                        <option value="1">Trabajo</option>
+                        <option value="2">Freelance</option>
+                        <option value="3">Inversiones</option>
+                        <option value="4">Prestamo</option>
+                        <option value="5">Otro</option>
+                      </>
+                    )}
+                  </Select>
+                </InputGroup>
+                <FormErrorMessage>
+                  {errors.category_id && errors.category_id.message}
+                </FormErrorMessage>
+              </FormControl>
               <FormControl as={GridItem} colSpan={6} isInvalid={errors.amount}>
                 <FormLabel
                   color={useColorModeValue('gray.700', 'gray.50')}
@@ -205,7 +215,7 @@ const AdminForm = ({ operation, onSubmit, setDate, date, edit }) => {
             textAlign="right"
           >
             <Button _focus={{ shadow: '' }} fontWeight="md" isLoading={isSubmitting} type="submit">
-              Enviar
+              {edit ? 'Guardar' : 'Enviar'}
             </Button>
           </Box>
         </chakra.form>

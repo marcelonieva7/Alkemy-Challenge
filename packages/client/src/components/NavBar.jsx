@@ -5,7 +5,6 @@ import {
   Flex,
   Text,
   IconButton,
-  Button,
   Stack,
   Collapse,
   Icon,
@@ -27,7 +26,7 @@ import {
   SunIcon,
 } from '@chakra-ui/icons';
 
-const NavBar = ({ userData }) => {
+const NavBar = () => {
   const { isOpen, onToggle } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
 
@@ -68,7 +67,7 @@ const NavBar = ({ userData }) => {
           </Link>
 
           <Flex display={{ base: 'none', md: 'flex' }} ml={10}>
-            <DesktopNav userData={userData} />
+            <DesktopNav />
           </Flex>
         </Flex>
         <Stack
@@ -85,90 +84,28 @@ const NavBar = ({ userData }) => {
             size="lg"
             onClick={toggleColorMode}
           />
-          {userData ? <Logout mobile={false} /> : <Login mobile={false} />}
         </Stack>
       </Flex>
 
       <Collapse animateOpacity in={isOpen}>
-        <MobileNav userData={userData} />
+        <MobileNav />
       </Collapse>
     </Box>
   );
 };
 
-const Login = ({ mobile }) => (
-  <Button
-    _hover={{
-      bg: 'pink.300',
-    }}
-    as={RouterLink}
-    bg="pink.400"
-    color="white"
-    display={{ base: mobile ? 'inline-flex' : 'none', md: !mobile ? 'inline-flex' : 'none' }}
-    fontSize="sm"
-    fontWeight={600}
-    to="/login"
-  >
-    Iniciar Sesión
-  </Button>
-);
-
-const Logout = ({ mobile }) => (
-  <Button
-    _hover={{
-      bg: 'red.300',
-    }}
-    as={Link}
-    bg="pink.400"
-    color="white"
-    display={{ base: mobile ? 'inline-flex' : 'none', md: !mobile ? 'inline-flex' : 'none' }}
-    fontSize="sm"
-    fontWeight={600}
-    href="https://covidcentre.herokuapp.com/"
-  >
-    Cerrar Sesión
-  </Button>
-);
-
-const NAV_ITEMS = (userData) => [
+const NAV_ITEMS = () => [
   {
     label: 'Operaciones',
     href: '/operations',
   },
-  // {
-  //   label: 'Operaciones',
-  //   children: [
-  //     {
-  //       label: 'La Rioja',
-  //       // subLabel: 'La Rioja Capital',
-  //       href: '/operations',
-  //     },
-  //   ],
-  // },
-  userData?.roles === 'User'
-    ? {
-        label: 'Administrar',
-        children: [
-          {
-            label: 'Centros de vacunación',
-            // subLabel: 'Find your dream design job',
-            href: '/admin/centers',
-          },
-          // {
-          //   label: 'Freelance Projects',
-          //   subLabel: 'An exclusive list for contract work',
-          //   href: '#',
-          // },
-        ],
-      }
-    : null,
 ];
 
-const DesktopNav = ({ userData }) => {
+const DesktopNav = () => {
   const linkColor = useColorModeValue('gray.600', 'gray.200');
   const linkHoverColor = useColorModeValue('gray.800', 'white');
   const popoverContentBgColor = useColorModeValue('white', 'gray.800');
-  const navItems = NAV_ITEMS(userData);
+  const navItems = NAV_ITEMS();
 
   return (
     <Stack direction="row" spacing={4}>
@@ -233,7 +170,6 @@ const DesktopSubNav = ({ label, href }) => (
         <Text _groupHover={{ color: 'pink.400' }} fontWeight={500} transition="all .3s ease">
           {label}
         </Text>
-        {/* <Text fontSize="sm">{subLabel}</Text> */}
       </Box>
       <Flex
         _groupHover={{ opacity: '100%', transform: 'translateX(0)' }}
@@ -300,13 +236,12 @@ const MobileNavItem = ({ label, children, href }) => {
   );
 };
 
-const MobileNav = ({ userData }) => {
-  const navItems = NAV_ITEMS(userData);
+const MobileNav = () => {
+  const navItems = NAV_ITEMS();
 
   return (
     <Stack bg={useColorModeValue('white', 'gray.800')} display={{ base: 'flex', md: 'none' }} p={4}>
       {navItems.map((navItem) => navItem && <MobileNavItem key={navItem.label} {...navItem} />)}
-      {userData ? <Logout mobile /> : <Login mobile />}
     </Stack>
   );
 };

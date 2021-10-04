@@ -12,7 +12,15 @@ import { updateIncome, updateExpense, saveIncome, saveExpense } from '../api';
 
 import AdminForm from './AdminForm';
 
-const AdminModal = ({ isOpen, onClose, operation, edit, dispatch, setCategory }) => {
+const AdminModal = ({
+  isOpen,
+  onClose,
+  operation,
+  edit,
+  dispatch,
+  setExpenseCategory,
+  setIncomeCategory,
+}) => {
   const { id, created_at } = operation;
 
   const [date, setDate] = useState(new Date());
@@ -25,10 +33,11 @@ const AdminModal = ({ isOpen, onClose, operation, edit, dispatch, setCategory })
 
   const onSubmit = ({ description, amount, type, category_id }) => {
     const created_at = date.toISOString();
-    let data = {
+    const data = {
       description,
       amount,
       created_at,
+      category_id,
     };
 
     if (edit) {
@@ -39,7 +48,8 @@ const AdminModal = ({ isOpen, onClose, operation, edit, dispatch, setCategory })
 
             dispatch({ type: 'UPDATE_INCOME_OK', payload: updated });
             onClose();
-            setCategory(0);
+            setExpenseCategory(0);
+            setIncomeCategory(0);
           } catch (err) {
             dispatch({ type: 'GET_DATA_ERROR', payload: err });
           }
@@ -49,14 +59,14 @@ const AdminModal = ({ isOpen, onClose, operation, edit, dispatch, setCategory })
 
         return;
       }
-      data = { ...data, category_id };
       const updateData = async (id, data) => {
         try {
           const updated = await updateExpense(Number(id), data);
 
           dispatch({ type: 'UPDATE_EXPENSE_OK', payload: updated });
           onClose();
-          setCategory(0);
+          setExpenseCategory(0);
+          setIncomeCategory(0);
         } catch (err) {
           dispatch({ type: 'GET_DATA_ERROR', payload: err });
         }
@@ -74,20 +84,21 @@ const AdminModal = ({ isOpen, onClose, operation, edit, dispatch, setCategory })
 
           dispatch({ type: 'SAVE_INCOME_OK', payload: saved });
           onClose();
-          setCategory(0);
+          setExpenseCategory(0);
+          setIncomeCategory(0);
         } catch (err) {
           dispatch({ type: 'GET_DATA_ERROR', payload: err });
         }
 
         return;
       }
-      data = { ...data, category_id };
       try {
         const saved = await saveExpense(data);
 
         dispatch({ type: 'SAVE_EXPENSE_OK', payload: saved });
         onClose();
-        setCategory(0);
+        setExpenseCategory(0);
+        setIncomeCategory(0);
       } catch (err) {
         dispatch({ type: 'GET_DATA_ERROR', payload: err });
       }

@@ -17,18 +17,18 @@ export const getAllOperations = async (limit) => {
   }
 };
 
-export const getAllIncomes = async (limit) => {
-  const response = await fetch(`${BASE_URL}api/incomes${limit ? '?limit=' + limit : ''}`, {
+export const getAllIncomes = async (category) => {
+  const response = await fetch(`${BASE_URL}api/incomes${category ? `?category=${category}` : ''}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
   });
 
-  const getIncomes = await response.json();
+  const responseJSON = await response.json();
 
   if (response.ok) {
-    return getIncomes;
+    return responseJSON;
   } else {
     throw new Error('Fail to get data');
   }

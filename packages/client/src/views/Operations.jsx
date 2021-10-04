@@ -117,8 +117,6 @@ const Operations = () => {
       case 'GET_DATA_ERROR': {
         return {
           ...state,
-          expenses: [],
-          incomes: [],
           isLoading: false,
           error: action.payload,
         };
@@ -133,7 +131,8 @@ const Operations = () => {
 
   const [operation, setOperation] = useState({});
   const [editModal, setEditModal] = useState(true);
-  const [category, setCategory] = useState(0);
+  const [expenseCategory, setExpenseCategory] = useState(0);
+  const [incomeCategory, setIncomeCategory] = useState(0);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isOpen1, onOpen: onOpen1, onClose: onClose1 } = useDisclosure();
@@ -164,8 +163,8 @@ const Operations = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data: incomes } = await getAllIncomes();
-        const { data: expenses } = await getAllExpenses(category);
+        const { data: incomes } = await getAllIncomes(incomeCategory);
+        const { data: expenses } = await getAllExpenses(expenseCategory);
 
         dispatch({ type: 'GET_DATA_OK', payload: { incomes, expenses } });
       } catch (err) {
@@ -174,7 +173,7 @@ const Operations = () => {
     };
 
     fetchData();
-  }, [category]);
+  }, [expenseCategory, incomeCategory]);
 
   return (
     <>
@@ -188,6 +187,37 @@ const Operations = () => {
         </TabList>
         <TabPanels>
           <TabPanel>
+            <FormControl colSpan={6}>
+              <FormLabel
+                color={useColorModeValue('gray.700', 'gray.50')}
+                fontSize="sm"
+                fontWeight="md"
+                htmlFor="incomeCategory"
+              >
+                Categoria
+              </FormLabel>
+              <InputGroup mb={3} size="sm">
+                <Select
+                  focusBorderColor="brand.400"
+                  id="incomeCategory"
+                  mt={1}
+                  name="incomeCategory"
+                  rounded="md"
+                  shadow="sm"
+                  size="sm"
+                  value={String(incomeCategory)}
+                  onChange={({ target }) => setIncomeCategory(Number(target.value))}
+                >
+                  <option disabled>Categoria</option>
+                  <option value="0">Todas</option>
+                  <option value="1">Trabajo</option>
+                  <option value="2">Freelance</option>
+                  <option value="3">Inversiones</option>
+                  <option value="4">Prestamo</option>
+                  <option value="5">Otro</option>
+                </Select>
+              </InputGroup>
+            </FormControl>
             {incomes.map((dat, idx) => (
               <List
                 key={idx}
@@ -211,7 +241,7 @@ const Operations = () => {
             ) : (
               !incomes.length && (
                 <Center>
-                  <Heading>Sin Operaciones</Heading>
+                  <Heading>Sin Ingresos</Heading>
                 </Center>
               )
             )}
@@ -235,8 +265,8 @@ const Operations = () => {
                   rounded="md"
                   shadow="sm"
                   size="sm"
-                  value={String(category)}
-                  onChange={({ target }) => setCategory(Number(target.value))}
+                  value={String(expenseCategory)}
+                  onChange={({ target }) => setExpenseCategory(Number(target.value))}
                 >
                   <option disabled>Categoria</option>
                   <option value="0">Todas</option>
@@ -271,7 +301,7 @@ const Operations = () => {
             ) : (
               !expenses.length && (
                 <Center>
-                  <Heading>Sin Operaciones</Heading>
+                  <Heading>Sin Gastos</Heading>
                 </Center>
               )
             )}
@@ -291,7 +321,8 @@ const Operations = () => {
         edit={editModal}
         isOpen={isOpen}
         operation={operation}
-        setCategory={setCategory}
+        setExpenseCategory={setExpenseCategory}
+        setIncomeCategory={setIncomeCategory}
         onClose={onClose}
       />
     </>

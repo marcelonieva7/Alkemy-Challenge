@@ -39,20 +39,28 @@ const Home = () => {
 
   return (
     <>
-      <Center my="6">
-        <Heading>Ultimas diez operaciones</Heading>
-      </Center>
+      {loading || (
+        <Center my="6">
+          <Heading>
+            {operations.length === 1
+              ? 'Ultima operacion'
+              : `Ultimas ${operations.length} operaciones`}
+          </Heading>
+        </Center>
+      )}
       {operations.map((dat, idx) => (
         <List key={idx} idx={idx} {...dat} />
       ))}
       {loading ? (
-        <Center>
+        <Center mt="5">
           <Spinner color="blue.500" emptyColor="gray.200" size="xl" speed="0.65s" thickness="4px" />
         </Center>
       ) : !operations.length ? (
-        <h2>Sin Operaciones</h2>
+        <Center>
+          <Heading>Sin Operaciones</Heading>
+        </Center>
       ) : (
-        <Heading my="3" size="md" textAlign="right">
+        <Heading mr="2" my="3" size="md" textAlign="right">
           Balance total {balance}
         </Heading>
       )}
