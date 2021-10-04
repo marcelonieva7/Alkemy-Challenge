@@ -4,12 +4,16 @@ const incomeModel = require('../models/income.model')
 const TABLE = 'Incomes'
 
 const getAllIncomes = async (req, res) => {
-  const { limit = 0, offset = 0 } = req.query
+  const { limit = 0, offset = 0, category } = req.query
   try {
     const query = await pool.query(
-      `SELECT *, 'ingreso' AS 'type' FROM \`${TABLE}\` ORDER BY \`created_at\` DESC 
+      `SELECT Incomes.id, Incomes.category_id, Incomes.amount, Incomes.description, Incomes.created_at, Income_categories.category_name, 'ingreso' AS 'type' FROM Incomes 
+      INNER JOIN Income_categories ON Incomes.category_id = Income_categories.id 
+      ${category ? `WHERE \`category_id\` = ${category}` : ''}
+      ORDER BY \`created_at\` DESC 
       ${limit ? 'LIMIT ' + limit + ' OFFSET ' + offset : ''}`,
     )
+
     const queryTotal = await pool.query(`SELECT SUM(\`amount\`) AS 'total' FROM \`${TABLE}\``)
 
     res.status(200).json({
@@ -58,12 +62,12 @@ const deleteIncome = async ({ params }, res) => {
 const updateIncome = async ({ body, params }, res) => {
   try {
     const validBody = await incomeModel.validateAsync(body, { convert: false })
-    const { amount, description, created_at } = validBody
+    const { amount, description, created_at, category_id } = validBody
     const incomeId = Number(params.incomeId)
 
     const query = await pool.query(
-      `UPDATE \`${TABLE}\` SET amount = ?, description = ?, created_at = ? WHERE \`id\` = ?`,
-      [amount, description, created_at, incomeId],
+      `UPDATE \`${TABLE}\` SET amount = ?, description = ?, created_at = ?, category_id = ? WHERE \`id\` = ?`,
+      [amount, description, created_at, category_id, incomeId],
     )
     if (!query.affectedRows) {
       res.status(400).send('Not found an income whith id ' + incomeId)
